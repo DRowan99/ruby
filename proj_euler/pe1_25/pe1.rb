@@ -16,7 +16,7 @@ options = {}
 opts = OptionParser.new do |create_opts|
 	create_opts.banner = "Usage: pe1.rb [options]"
 
-	create_opts.on("--up-to NUMBER", "-n", Integer, 
+	create_opts.on("--less-than NUMBER", "-n", Integer,
 		"Specify the number n to add up to.") {|n| options[:n] = n}
 
 	create_opts.on("--multiples-of NUM1,[NUM2,]", "-m", Array,
@@ -32,18 +32,21 @@ opts.parse! ARGV
 n = (options[:n] || 1000).to_i
 multiples_of = (options[:multiples_of] || [3,5]).uniq
 
+# Remove any numbers that are divisible by other numbers in the list
+# since these will be generated and counted by any divisors
+multiples_of.reject!{ |n| (multiples_of - [n]).any?{|m| n % m == 0} }
+
 result = 0
 operation = [:+, :-].cycle
 
 (1..multiples_of.length).each do |i|
-
 	# Using inclusion-exclusion principle.
 	# Change the operator on each go around from plus, to minus, to plus, . . .,
 	# as you count up to n, then remove double counts from the previous step,
-	# then add back in excluded triple counts. . .
+	# then add back in items removed by triple counts from the previous step. . .
 	plus_minus = operation.next
 	multiples_of.combination(i).each do |combo|
-		num = combo.inject(:*)
+		num = combo.inject(&:*)
 		result = result.send(plus_minus, num.sum_multiples_less_than(n))
 	end
 end
