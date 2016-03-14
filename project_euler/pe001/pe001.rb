@@ -1,3 +1,5 @@
+# Write README to explain command line switches
+
 require 'optparse'
 
 class Fixnum
