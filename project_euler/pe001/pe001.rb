@@ -9,8 +9,8 @@ class Fixnum
 	# where T_n is the nth triangular number with known algebraic representation
 	# T_n = n*(n+1)/2
 	def sum_multiples_less_than(n)
-		nth_tri = (n/self) - (n % self == 0 ? 1 : 0)
-		self*(nth_tri)*(nth_tri + 1)/2
+		triang_n = (n/self) - (n % self == 0 ? 1 : 0)
+		self*((triang_n)*(triang_n + 1))/2
 	end
 end
 
@@ -36,7 +36,7 @@ multiples_of = (options[:multiples_of] || [3,5]).uniq
 
 # Remove any numbers that are divisible by other numbers in the list
 # since these will be generated and counted by any divisors
-multiples_of.reject!{ |n| (multiples_of - [n]).any?{|m| n % m == 0} }
+multiples_of.reject!{ |m| (multiples_of - [m]).any?{|k| m % k == 0} }
 
 result = 0
 operation = [:+, :-].cycle
