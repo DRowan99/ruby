@@ -12,6 +12,8 @@ module MadLib
 		end
 
 		def get(madlib = nil)
+			return nil if !madlib && @libs.empty?
+
 			@replacements = []
 			@repeat_substitute = {}
 			@parser = MadLib::Parser.new madlib || @libs.shift
@@ -29,7 +31,7 @@ module MadLib
 				@repeat_substitute[blank_alias] = @replacements.last if blank_alias
 			end
 
-			puts "", @parser.sentence.zip(@replacements.map{|str| str.red}).flatten.join, ""
+			@madlib = @parser.sentence.zip(@replacements.map{|str| str.red}).flatten.join
 		end
 
 		def from_file(file_name)
@@ -37,10 +39,6 @@ module MadLib
 			load_libs_from @madlibs_file
 			
 			self
-		end
-
-		def madlib
-			@parser.madlib
 		end
 
 		private
