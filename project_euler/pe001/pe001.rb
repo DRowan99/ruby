@@ -16,7 +16,7 @@ end
 
 options = {}
 opts = OptionParser.new do |create_opts|
-	create_opts.banner = "Usage: pe1.rb [options]"
+	create_opts.banner = "Usage: pe001.rb [options]"
 
 	create_opts.on("--less-than NUMBER", "-n", Integer,
 		"Specify the number n to add up to.") {|n| options[:n] = n}
