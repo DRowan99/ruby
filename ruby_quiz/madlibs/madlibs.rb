@@ -4,35 +4,49 @@ module MadLib
 	MADLIB_DIR = File.expand_path(File.dirname(__FILE__))
 
 	class Generator
-		attr_reader :libs, :madlib, :replacements, :repeat_substitute
+		attr_reader :libs, :madlibs_file, :parser, :madlib, :replacements, :repeat_substitute
 
-		def initialize
-			@libs = YAML.load(File.read(MADLIB_DIR + '/madlibs.yml'))
+		def initialize(file_name = nil)
+			@madlibs_file = (file_name || MADLIB_DIR + '/madlibs.yml')
+			load_libs_from(@madlibs_file)
 		end
 
-		def get(madlib = nil, list = [])
+		def get(madlib = nil)
 			@replacements = []
 			@repeat_substitute = {}
-			@madlib = MadLib::Parser.new madlib || @libs.shift
+			@parser = MadLib::Parser.new madlib || @libs.shift
 
-			@madlib.blanks.each do |blank|
-				
-				@replacements << if @madlib.repeats.include?(blank)
-					@repeat_substitute[blank]
-				elsif !list.empty?
-					list.shift
+			@parser.blanks.each do |blank|
+				prompt, blank_alias = blank.split(":").reverse
+
+				@replacements << if @parser.repeats.include?(prompt)
+					@repeat_substitute[prompt]
 				else
-					print "Enter #{blank.split(":").last}: "
+					print "Enter #{prompt}: "
 					$stdin.gets.strip
 				end
 
-				if blank.match(/:/)
-					repeat = blank.split(":").first
-					@repeat_substitute[repeat] = @replacements.last
-				end
+				@repeat_substitute[blank_alias] = @replacements.last if blank_alias
 			end
 
-			puts @madlib.sentence.zip(@replacements.map{|str| str.red}).flatten.join
+			puts "", @parser.sentence.zip(@replacements.map{|str| str.red}).flatten.join, ""
+		end
+
+		def from_file(file_name)
+			@madlibs_file = file_name
+			load_libs_from @madlibs_file
+			
+			self
+		end
+
+		def madlib
+			@parser.madlib
+		end
+
+		private
+
+		def load_libs_from(file_name)
+			@libs = YAML.load(File.read(file_name)).shuffle
 		end
 	end
 
@@ -60,8 +74,7 @@ module MadLib
 end
 
 class String
-	# Small monkeypatch to change the color of the string to red in the 
-	# console window to highlight the mad libs.
+	# Small monkeypatch to change the color of a string to red in the console window
 	def red
 		"\e[31m#{self}\e[0m"
 	end
