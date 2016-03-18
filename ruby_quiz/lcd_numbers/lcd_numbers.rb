@@ -7,14 +7,16 @@ module LCD
 		attr_reader :top, :upper, :middle, :lower, :bottom
 		attr_accessor :size, :spacing
 
+		PRINT_LINES = [:top, :upper, :middle, :lower, :bottom]
+
 		def initialize(size = 2, spacing = 1)
 			@size, @spacing = size, spacing
-			@top, @upper, @middle, @lower, @bottom = [], [], [], [], []
+			PRINT_LINES.each { |print_line| instance_variable_set "@#{print_line}", [] }
 		end
 
-		def print(*chars)
-			chars.each {|char| send "__#{char}__"}
-			print_screen
+		def print(characters, opts = {})
+			characters.to_s.upcase.chars.each {|char| send "__#{char}__"}
+			print_screen opts[:size], opts[:spacing]
 		end
 
 		((0..9).to_a + ["A", "B", "C", "D", "E", "F"]).each do |char|
@@ -34,20 +36,22 @@ module LCD
 			size = (size_n || @size)
 			spacing = (spacing_m || @spacing)
 
-			[@top, @upper, @middle, @lower, @bottom].each_with_index do |line, i|
+			PRINT_LINES.each_with_index do |print_line, i|
+				line = instance_variable_get "@#{print_line}"
 				(i.even? ? 1 : size).times do
 					puts line.map{|chars| chars.call(size)}.join(" " * spacing)
 				end
+				instance_variable_set "@#{print_line}", []
 			end
 			return nil
 		end
 
 		private
 
-		[:top, :upper, :middle, :lower, :bottom].each do |name|
+		PRINT_LINES.each do |name|
 			define_method(name) do |arg|
 				line = instance_variable_get "@#{name}"
-				(line||= []) << send(arg)
+				line << send(arg)
 				instance_variable_set "@#{name}", line
 			end
 
