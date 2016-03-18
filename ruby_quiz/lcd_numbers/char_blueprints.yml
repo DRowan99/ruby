@@ -1,0 +1,111 @@
+0:
+  top: line
+  upper: both_vert
+  middle: blank
+  lower: both_vert
+  bottom: line
+
+1:
+  top: blank
+  upper: right_vert
+  middle: blank
+  lower: right_vert
+  bottom: blank
+
+2:
+  top: line
+  upper: right_vert
+  middle: line
+  lower: left_vert
+  bottom: line
+
+3:
+  top: line
+  upper: right_vert
+  middle: line
+  lower: right_vert
+  bottom: line
+
+4:
+  top: blank
+  upper: both_vert
+  middle: line
+  lower: right_vert
+  bottom: blank
+
+5:
+  top: line
+  upper: left_vert
+  middle: line
+  lower: right_vert
+  bottom: line
+
+6:
+  top: line
+  upper: left_vert
+  middle: line
+  lower: both_vert
+  bottom: line
+
+7:
+  top: line
+  upper: right_vert
+  middle: blank
+  lower: right_vert
+  bottom: blank
+
+8:
+  top: line
+  upper: both_vert
+  middle: line
+  lower: both_vert
+  bottom: line
+
+9:
+  top: line
+  upper: both_vert
+  middle: line
+  lower: right_vert
+  bottom: line
+
+A:
+  top: line
+  upper: both_vert
+  middle: line
+  lower: both_vert
+  bottom: blank
+
+B:
+  top: line
+  upper: both_vert
+  middle: line
+  lower: both_vert
+  bottom: line
+
+C:
+  top: line
+  upper: left_vert
+  middle: blank
+  lower: left_vert
+  bottom: line
+
+D:
+  top: line
+  upper: both_vert
+  middle: blank
+  lower: both_vert
+  bottom: line
+
+E:
+  top: line
+  upper: left_vert
+  middle: line
+  lower: left_vert
+  bottom: line
+
+F:
+  top: line
+  upper: left_vert
+  middle: line
+  lower: left_vert
+  bottom: blank
