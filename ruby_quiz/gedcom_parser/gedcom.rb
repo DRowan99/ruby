@@ -4,52 +4,59 @@ module GEDCOM
 	class Parser
 		attr_reader :current_depth, :depth, :open_tags, :xml
 
-		DEFAULT_FILE = '/us_presidents.ged'
+		DEFAULT_FILE = '/bill_clinton_sample.ged'
 
 		def initialize(gedcom_file = GEDCOM::GEDCOM_DIR+DEFAULT_FILE)
-			@xml = ""
 			@gedcom_file = File.open(gedcom_file)
+			@current_depth = 0
 			@open_tags, @depth = [], []
 		end
 
 		def parse!()
-			loop do 
-				ged_parse @gedcom_file.readline
-			end until @gedcom_file.eof?
+			@xml = File.open("bill_clinton_sample_genealogy.xml","w")
+			open_tag "gedcom"
+
+			parse @gedcom_file.readline until @gedcom_file.eof?
+
+			@current_depth = 0
+			close_tags until @open_tags.empty?
+
+			@xml.close
+			nil
 		end
 
-		def ged_parse(ged_line)
-			ged = ged_line.split(" ")
-			@current_depth = ged.shift.to_i
+		def parse(line)
+			ged = line.split(" ")
+			@current_depth = ged.shift.to_i + 1
 
-			while @depth.last && @current_depth <= @depth.last
-				xml_close_open_tags
-			end
+			close_tags while @depth.last && @current_depth <= @depth.last
 
-			id = (@current_depth == 0 ? ged.shift : nil)
+			id = (ged.first.match(/^@\w+@$/i) ? ged.shift : nil)
 
 			tag, *content = ged
-			xml_open(tag, id: id, text: content.join(" "))
-
-			@xml
+			open_tag(tag.downcase, id: id, text: content.join(" "))
 		end
 
 		private
 
-		def xml_open(tag, options = {})
-			@xml << "<#{tag}"
+		def open_tag(tag, options = {})
+			@xml << "\n" unless @xml.pos == 0
+			@xml << indent + "<#{tag}"
 			@xml << " id=\"#{options[:id]}\"" if options[:id]
 			@xml << ">#{options[:text]}"
 			@open_tags << tag
 			@depth << @current_depth
 		end
 
-		def xml_close_open_tags
-			unless @current_depth == @depth.pop
-				@xml << "\n"
-				@xml << @current_depth * 2 * " " 
-			end
+		def close_tags
+			prev_depth = @depth.pop
+
 			@xml << "</#{@open_tags.pop}>"
+			@xml << "\n" + indent(@depth.last) if @current_depth < prev_depth
+		end
+
+		def indent(depth = nil)
+			" " * 2 * (depth || @current_depth)
 		end
 	end
 end
