@@ -8,12 +8,12 @@ module GEDCOM
 
 		def initialize(gedcom_file = GEDCOM::GEDCOM_DIR+DEFAULT_FILE)
 			@gedcom_file = File.open(gedcom_file)
-			@current_depth = 0
-			@open_tags, @depth = [], []
+			@nesting_depth, @current_depth = -1, 0
+			@open_tags = []
 		end
 
-		def parse!()
-			@xml = File.open("bill_clinton_sample_genealogy.xml","w")
+		def generate(options = {})
+			@output = File.open(GEDCOM::GEDCOM_DIR+"/bill_clinton_sample_genealogy.xml","w")
 			open_tag "gedcom"
 
 			parse @gedcom_file.readline until @gedcom_file.eof?
@@ -21,15 +21,15 @@ module GEDCOM
 			@current_depth = 0
 			close_tags until @open_tags.empty?
 
-			@xml.close
-			nil
+			@output.close
+			@output.path
 		end
 
 		def parse(line)
 			ged = line.split(" ")
 			@current_depth = ged.shift.to_i + 1
 
-			close_tags while @depth.last && @current_depth <= @depth.last
+			close_tags while @nesting_depth > 0 && @current_depth <= @nesting_depth
 
 			id = (ged.first.match(/^@\w+@$/i) ? ged.shift : nil)
 
@@ -40,19 +40,19 @@ module GEDCOM
 		private
 
 		def open_tag(tag, options = {})
-			@xml << "\n" unless @xml.pos == 0
-			@xml << indent + "<#{tag}"
-			@xml << " id=\"#{options[:id]}\"" if options[:id]
-			@xml << ">#{options[:text]}"
+			@output << "\n" unless @output.pos == 0
+			@output << indent + "<#{tag}"
+			@output << " id=\"#{options[:id]}\"" if options[:id]
+			@output << ">#{options[:text]}"
+
 			@open_tags << tag
-			@depth << @current_depth
+			@nesting_depth += 1
 		end
 
 		def close_tags
-			prev_depth = @depth.pop
-
-			@xml << "</#{@open_tags.pop}>"
-			@xml << "\n" + indent(@depth.last) if @current_depth < prev_depth
+			@output << "</#{@open_tags.pop}>"
+			@output << "\n" + indent(@nesting_depth - 1) if @current_depth < @nesting_depth
+			@nesting_depth -= 1
 		end
 
 		def indent(depth = nil)
